@@ -1943,7 +1943,7 @@ setTimeout(()=>{renderAll();applyRoleRoute();},0);
    Giữ localStorage làm cache/offline fallback; dữ liệu vận hành chính đồng bộ online.
    ===================================================================== */
 const FNB_SB_URL='https://upojgdqkkjwtbrzljffo.supabase.co';
-const FNB_SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6InVwb2pnZHFra2p3dGJyemxqZmZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mzc1MDcsImV4cCI6MjEwMjQxMzUwN30.fINRq6YWtjNCoqT8Pq6c0FzoznGZGS-VgF6-Zq6SW6s';
+const FNB_SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwb2pnZHFra2p3dGJyemxqZmZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mzc1MDcsImV4cCI6MjEwMjQxMzUwN30.fINRq6YWtjNCoqT8Pq6c0FzoznGZGS-VgF6-Zq6SW6s';
 const FNB_SHOP_ID='main';
 const FNB_LOCAL_MANAGER_HASH='2f4627f93dcb6d9f60031c5cb881be652315df1fced864eb99ebbd19ba067644'; /* SHA-256 của PIN demo local; bản online vẫn kiểm tra Supabase */
 let FNB_DERIVED_BAR_ACCESS='';
@@ -2157,8 +2157,9 @@ async function fnbCheckRole(role,token){
   }
   try{
     let res=await fetch(FNB_SB_URL+'/rest/v1/rpc/fnb_check_access',{method:'POST',headers:{apikey:FNB_SB_ANON,Authorization:'Bearer '+FNB_SB_ANON,'Content-Type':'application/json'},body:JSON.stringify({p_role:role,p_token:token})});
-    if(!res.ok)return false;
-    let txt=(await res.text()).trim(),v;try{v=JSON.parse(txt)}catch(e){v=txt}
+    let txt=(await res.text()).trim();
+    if(!res.ok){throw new Error('Supabase xác thực HTTP '+res.status+(txt?(': '+txt):''));}
+    let v;try{v=JSON.parse(txt)}catch(e){v=txt}
     return v===true||v==='true'||(Array.isArray(v)&&v[0]===true)||(v&&v.fnb_check_access===true);
   }catch(e){console.warn('Kiểm tra quyền online',e);throw e}
 }
